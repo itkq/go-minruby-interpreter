@@ -118,9 +118,9 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IDENT:
 		if p.peekTokenIs(token.ASSIGN) {
 			return p.parseLetStatement()
+		} else {
+			return p.parseExpressionStatement()
 		}
-		// TODO
-		return nil
 	default:
 		return p.parseExpressionStatement()
 	}

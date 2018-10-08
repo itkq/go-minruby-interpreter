@@ -6,6 +6,7 @@ import (
 	"github.com/itkq/go-minruby-interpreter/lexer"
 	"github.com/itkq/go-minruby-interpreter/object"
 	"github.com/itkq/go-minruby-interpreter/parser"
+	"github.com/k0kubun/pp"
 )
 
 func TestEvalIntegerExpression(t *testing.T) {
@@ -32,6 +33,8 @@ func TestEvalIntegerExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
+		pp.Print(evaluated)
+
 		testIntegerObject(t, evaluated, tt.expected)
 	}
 }
@@ -40,8 +43,9 @@ func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
+	env := object.NewEnvironment()
 
-	return Eval(program)
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
@@ -215,6 +219,10 @@ if (10 > 1) {
 `,
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
+		// {
+		// 	"foobar",
+		// 	"identifier not found: foobar",
+		// },
 	}
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)

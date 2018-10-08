@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/itkq/go-minruby-interpreter/token"
+	"github.com/k0kubun/pp"
 )
 
 func TestNextToken(t *testing.T) {
