@@ -117,3 +117,58 @@ p(odd?(11))
 		}
 	}
 }
+
+func TestComment(t *testing.T) {
+	input := `# This is a comment.
+def even?(n)
+  # comment
+  if n == 0
+    true # comment
+  else
+    odd?(n - 1)
+  end
+end # comment`
+	tests := []struct {
+		expectedType    token.TokenType
+		expectedLiteral string
+	}{
+		{token.FUNCTION, "def"},
+		{token.IDENT, "even?"},
+		{token.LPAREN, "("},
+		{token.IDENT, "n"},
+		{token.RPAREN, ")"},
+		{token.IF, "if"},
+		{token.IDENT, "n"},
+		{token.EQ, "=="},
+		{token.INT, "0"},
+		{token.TRUE, "true"},
+		{token.ELSE, "else"},
+		{token.IDENT, "odd?"},
+		{token.LPAREN, "("},
+		{token.IDENT, "n"},
+		{token.MINUS, "-"},
+		{token.INT, "1"},
+		{token.RPAREN, ")"},
+		{token.END, "end"},
+		{token.END, "end"},
+		{token.EOF, ""},
+	}
+
+	l := New(input)
+
+	for i, tt := range tests {
+		tok := l.NextToken()
+
+		pp.Print(tok)
+
+		if tok.Type != tt.expectedType {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+				i, tt.expectedType, tok.Type)
+		}
+
+		if tok.Literal != tt.expectedLiteral {
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+				i, tt.expectedLiteral, tok.Literal)
+		}
+	}
+}
