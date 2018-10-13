@@ -242,11 +242,9 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 func (p *Parser) parseIfExpression() ast.Expression {
 	expression := &ast.IfExpression{Token: p.curToken}
 
-	if !p.expectPeek(token.IDENT) {
-		return nil
-	}
-
+	p.nextToken()
 	expression.Condition = p.parseExpression(LOWEST)
+
 	p.nextToken()
 	expression.Consequence = p.parseBlockStatement()
 
