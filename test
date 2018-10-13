@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+f = ARGV[0]
+print "#{f} => "
+expected = `ruby #{f}`
+actual = `go run main.go #{f}`
+
+if expected == actual
+  puts "OK"
+else
+  puts "NG"
+  puts "expected:\n#{expected}"
+  puts "actual:\n#{actual}"
+  abort
+end

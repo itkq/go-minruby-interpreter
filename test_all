@@ -1,0 +1,31 @@
+#!/usr/bin/env ruby
+
+TEST_DIR = "cookpad-hackarade-minruby"
+
+SKIP_TESTS = [
+  "test2-5.rb", # strconv.ParseInt cannot parse 1000000000000000000000000000000
+  "test3-5.rb", # 10000000000000000 is too large
+  "test4-4.rb", # there is no buitlin fizzbuzz method in Ruby
+].map{ |t|
+  "#{TEST_DIR}/#{t}"
+}
+
+Dir.glob("#{TEST_DIR}/test*.rb").sort.each do |f|
+  print "#{f} => "
+  if SKIP_TESTS.include?(f)
+    puts "SKIP"
+    next
+  end
+
+  expected = `ruby #{f}`
+  actual = `go run main.go #{f}`
+
+  if expected == actual
+    puts "OK"
+  else
+    puts "FAILED"
+    puts "expected:\n#{expected}"
+    puts "actual:\n#{actual}"
+    abort
+  end
+end
