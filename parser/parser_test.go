@@ -518,7 +518,7 @@ end`
 }
 
 func TestFunctionLiteralParsing(t *testing.T) {
-	input := `def(x, y)
+	input := `def fn(x, y)
   x + y
 end`
 

@@ -187,6 +187,7 @@ func (bs *BlockStatement) String() string {
 
 type FunctionLiteral struct {
 	Token      token.Token // The 'fn' token
+	Name       string
 	Parameters []*Identifier
 	Body       *BlockStatement
 }
@@ -202,6 +203,8 @@ func (fl *FunctionLiteral) String() string {
 	}
 
 	out.WriteString(fl.TokenLiteral())
+	out.WriteString(" ")
+	out.WriteString(fl.Name)
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")

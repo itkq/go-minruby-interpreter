@@ -276,12 +276,17 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 func (p *Parser) parseFunctionLiteral() ast.Expression {
 	lit := &ast.FunctionLiteral{Token: p.curToken}
 
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	lit.Name = p.curToken.Literal
+
 	if !p.expectPeek(token.LPAREN) {
 		return nil
 	}
 
 	lit.Parameters = p.parseFunctionParameters()
-
 	p.nextToken()
 
 	lit.Body = p.parseBlockStatement()
