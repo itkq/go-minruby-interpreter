@@ -36,6 +36,7 @@ while n < 10
 end
 
 "foobar"
+[1, 2]
 `
 
 	tests := []struct {
@@ -126,6 +127,11 @@ end
 		{token.RPAREN, ")"},
 		{token.END, "end"},
 		{token.STRING, "foobar"},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACKET, "]"},
 		{token.EOF, ""},
 	}
 
