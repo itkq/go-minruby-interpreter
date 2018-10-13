@@ -46,6 +46,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IfExpression:
 		return evalIfExpression(node, env)
 
+	case *ast.WhileExpression:
+		return evalWhileExpression(node, env)
+
 	case *ast.LetStatement:
 		val := Eval(node.Value, env)
 		if isError(val) {
@@ -188,6 +191,16 @@ func isTruthy(obj object.Object) bool {
 		return false
 	default:
 		return true
+	}
+}
+
+func evalWhileExpression(we *ast.WhileExpression, env *object.Environment) object.Object {
+	for {
+		condition := Eval(we.Condition, env)
+		if !isTruthy(condition) {
+			return NULL
+		}
+		evalStatements(we.Body.Statements, env)
 	}
 }
 

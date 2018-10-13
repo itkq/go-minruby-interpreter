@@ -47,6 +47,7 @@ const (
 	ELSIF    = "ELSIF"
 	ELSE     = "ELSE"
 	END      = "END"
+	WHILE    = "WHILE"
 	RETURN   = "RETURN"
 )
 
@@ -59,6 +60,7 @@ var keywords = map[string]TokenType{
 	"else":   ELSE,
 	"end":    END,
 	"return": RETURN,
+	"while":  WHILE,
 }
 
 func LookupIdent(ident string) TokenType {

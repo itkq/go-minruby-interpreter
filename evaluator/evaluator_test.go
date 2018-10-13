@@ -164,6 +164,18 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 	return true
 }
 
+func TestWhileExpression(t *testing.T) {
+	input := `n = 0
+while n < 3
+  n = n + 1
+end
+n
+`
+	expected := 3
+	evaluated := testEval(input)
+	testIntegerObject(t, evaluated, int64(expected))
+}
+
 // func TestReturnStatements(t *testing.T) {
 // 	tests := []struct {
 // 		input    string

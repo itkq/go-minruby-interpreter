@@ -28,7 +28,14 @@ p(even?(10))
 p(even?(11))
 p(odd?(10))
 p(odd?(11))
+
+n = 0
+while n < 10
+	n = n + 1
+	p(n)
+end
 `
+
 	tests := []struct {
 		expectedType    token.TokenType
 		expectedLiteral string
@@ -99,6 +106,23 @@ p(odd?(11))
 		{token.INT, "11"},
 		{token.RPAREN, ")"},
 		{token.RPAREN, ")"},
+		{token.IDENT, "n"},
+		{token.ASSIGN, "="},
+		{token.INT, "0"},
+		{token.WHILE, "while"},
+		{token.IDENT, "n"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.IDENT, "n"},
+		{token.ASSIGN, "="},
+		{token.IDENT, "n"},
+		{token.PLUS, "+"},
+		{token.INT, "1"},
+		{token.IDENT, "p"},
+		{token.LPAREN, "("},
+		{token.IDENT, "n"},
+		{token.RPAREN, ")"},
+		{token.END, "end"},
 		{token.EOF, ""},
 	}
 
