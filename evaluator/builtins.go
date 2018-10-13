@@ -9,11 +9,11 @@ import (
 var builtins = map[string]*object.Builtin{
 	"p": &object.Builtin{
 		Fn: func(args ...object.Object) object.Object {
-			for _, arg := range args {
-				fmt.Println(arg.Inspect())
+			if len(args) != 1 {
+				return newError("wrong number of arguments. got=%d, want=1", len(args))
 			}
 
-			return NULL
+			return args[0] // XXX:
 		},
 	},
 }
