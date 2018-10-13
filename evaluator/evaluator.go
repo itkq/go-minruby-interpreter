@@ -24,6 +24,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 
+	case *ast.Boolean:
+		return nativeBoolToBooleanObject(node.Value)
+
 	// case *ast.Boolean:
 	// 	return &object.Boolean{Value: node.Value}
 
@@ -103,6 +106,13 @@ func evalStatements(stmts []ast.Statement, env *object.Environment) object.Objec
 	return result
 }
 
+func nativeBoolToBooleanObject(input bool) *object.Boolean {
+	if input {
+		return TRUE
+	}
+	return FALSE
+}
+
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
 	case "!":
@@ -132,6 +142,10 @@ func evalInfixExpression(
 	switch {
 	case left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ:
 		return evalIntegerInfixExpression(operator, left, right)
+	case operator == "==":
+		return nativeBoolToBooleanObject(left == right)
+	case operator == "!=":
+		return nativeBoolToBooleanObject(left != right)
 	case left.Type() != right.Type():
 		return newError("type mismatch: %s %s %s",
 			left.Type(), operator, right.Type())
@@ -170,13 +184,6 @@ func evalIntegerInfixExpression(
 	default:
 		return NULL
 	}
-}
-
-func nativeBoolToBooleanObject(input bool) *object.Boolean {
-	if input {
-		return TRUE
-	}
-	return FALSE
 }
 
 func evalIfExpression(ie *ast.IfExpression, env *object.Environment) object.Object {
