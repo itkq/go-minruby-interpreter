@@ -34,6 +34,8 @@ while n < 10
 	n = n + 1
 	p(n)
 end
+
+"foobar"
 `
 
 	tests := []struct {
@@ -123,6 +125,7 @@ end
 		{token.IDENT, "n"},
 		{token.RPAREN, ")"},
 		{token.END, "end"},
+		{token.STRING, "foobar"},
 		{token.EOF, ""},
 	}
 

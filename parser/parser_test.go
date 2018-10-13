@@ -704,3 +704,27 @@ end`
 		return
 	}
 }
+
+func TestStringLiteralExpression(t *testing.T) {
+	input := `"hello world"`
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not ast.ExpressionStatement. got=%T",
+			program.Statements[1])
+	}
+
+	literal, ok := stmt.Expression.(*ast.StringLiteral)
+	if !ok {
+		t.Fatalf("exp not *ast.StringLiteral. got=%T", stmt.Expression)
+	}
+
+	if literal.Value != "hello world" {
+		t.Fatalf("literal.Value not %q. got=%q", "hello world", literal.Value)
+	}
+}
