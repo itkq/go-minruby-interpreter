@@ -293,6 +293,8 @@ func TestBuiltinFunctions(t *testing.T) {
 		expected interface{}
 	}{
 		{`p(1)`, 1},
+		{`Integer("0")`, 0},
+		{`Integer("12345")`, 12345},
 	}
 
 	for _, tt := range tests {
