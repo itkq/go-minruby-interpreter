@@ -60,7 +60,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.Set(node.Name.Value, val)
 
 	case *ast.LetArrayExpresion:
-		return evalLetArrayExpression(node, env)
+		return evalLetArrayHashExpression(node, env)
 
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
@@ -98,6 +98,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 			return index
 		}
 		return evalIndexExpression(left, index)
+
+	case *ast.HashLiteral:
+		return evalHashLiteral(node, env)
 
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
@@ -342,38 +345,113 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	switch {
 	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
 		return evalArrayIndexExpression(left, index)
+	case left.Type() == object.HASH_OBJ:
+		return evalHashIndexExpression(left, index)
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
 }
 
-func evalLetArrayExpression(
+func evalHashLiteral(
+	node *ast.HashLiteral,
+	env *object.Environment,
+) object.Object {
+	pairs := make(map[object.HashKey]object.HashPair)
+
+	for keyNode, valueNode := range node.Pairs {
+		key := Eval(keyNode, env)
+		if isError(key) {
+			return key
+		}
+
+		hashKey, ok := key.(object.Hashable)
+		if !ok {
+			return newError("unusable as hash key: %s", key.Type())
+		}
+
+		value := Eval(valueNode, env)
+		if isError(value) {
+			return value
+		}
+
+		hashed := hashKey.HashKey()
+		pairs[hashed] = object.HashPair{Key: key, Value: value}
+	}
+
+	return &object.Hash{Pairs: pairs}
+}
+
+func evalLetArrayHashExpression(
 	node *ast.LetArrayExpresion,
 	env *object.Environment,
 ) object.Object {
+	envObj, ok := env.Get(node.Name.Value)
+	if !ok {
+		return newError("identifier not found: " + node.Name.TokenLiteral())
+	}
 	val := Eval(node.Value, env)
 	if isError(val) {
 		return val
 	}
-	indexObj := Eval(node.Index, env)
-	if isError(indexObj) {
-		return indexObj
-	}
-	obj, ok := env.Get(node.Name.Value)
-	if !ok {
-		return newError("identifier not found: " + node.Name.TokenLiteral())
-	}
-	arr := obj.(*object.Array)
-	index := indexObj.(*object.Integer)
-	len := int64(len(arr.Elements))
 
+	switch obj := envObj.(type) {
+	case *object.Array:
+		index := Eval(node.Index, env)
+		if isError(index) {
+			return index
+		}
+
+		arrayIndex, ok := index.(*object.Integer)
+		if !ok {
+			return newError("unusable array index: %s", index.Type())
+		}
+		letArray(obj, arrayIndex, val, env)
+
+	case *object.Hash:
+		key := Eval(node.Index, env)
+		if isError(key) {
+			return key
+		}
+		if ret := letHash(obj, key, val, env); isError(ret) {
+			return ret
+		}
+
+	default:
+		return newError("unsupported type: %s", envObj.Type())
+	}
+
+	return val
+}
+
+func letArray(
+	arr *object.Array,
+	index *object.Integer,
+	val object.Object,
+	env *object.Environment,
+) {
+	len := int64(len(arr.Elements))
 	var i int64
 	for i = 0; i < index.Value-len+1; i++ {
 		arr.Elements = append(arr.Elements, &object.Null{})
 	}
-	arr.Elements[index.Value] = Eval(node.Value, env)
+	arr.Elements[index.Value] = val
+}
 
-	return val
+func letHash(
+	hash *object.Hash,
+	key object.Object,
+	val object.Object,
+	env *object.Environment,
+) object.Object {
+	hashKey, ok := key.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", key.Type())
+	}
+
+	hashed := hashKey.HashKey()
+	hash.Pairs[hashed] = object.HashPair{Key: key, Value: val}
+
+	return &object.Null{}
 }
 
 func evalArrayIndexExpression(array, index object.Object) object.Object {
@@ -386,4 +464,20 @@ func evalArrayIndexExpression(array, index object.Object) object.Object {
 	}
 
 	return arrayObject.Elements[idx]
+}
+
+func evalHashIndexExpression(hash, index object.Object) object.Object {
+	hashObject := hash.(*object.Hash)
+
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", index.Type())
+	}
+
+	pair, ok := hashObject.Pairs[key.HashKey()]
+	if !ok {
+		return NULL
+	}
+
+	return pair.Value
 }

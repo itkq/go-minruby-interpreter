@@ -37,6 +37,7 @@ end
 
 "foobar"
 [1, 2]
+{"foo" => "bar"}
 `
 
 	tests := []struct {
@@ -132,6 +133,12 @@ end
 		{token.COMMA, ","},
 		{token.INT, "2"},
 		{token.RBRACKET, "]"},
+		{token.LBRACE, "{"},
+		{token.STRING, "foo"},
+		{token.ASSIGN, "="},
+		{token.GT, ">"},
+		{token.STRING, "bar"},
+		{token.RBRACE, "}"},
 		{token.EOF, ""},
 	}
 
