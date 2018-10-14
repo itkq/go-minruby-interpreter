@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 f = ARGV[0]
+unless f
+  puts 'usage: ./test [testfile]'
+  abort
+end
 print "#{f} => "
 expected = `ruby #{f}`
 actual = `go run main.go #{f}`
