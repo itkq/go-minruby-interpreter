@@ -320,3 +320,25 @@ func (ie *IndexExpression) String() string {
 
 	return out.String()
 }
+
+type LetArrayExpresion struct {
+	Token token.Token // the token.LET token
+	Name  *Identifier
+	Index Expression
+	Value Expression
+}
+
+func (las *LetArrayExpresion) expressionNode()      {}
+func (las *LetArrayExpresion) TokenLiteral() string { return las.Token.Literal }
+func (las *LetArrayExpresion) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(las.Name.String())
+	out.WriteString("[")
+	out.WriteString(las.Index.String())
+	out.WriteString("]")
+	out.WriteString(" = ")
+	out.WriteString(las.Value.String())
+
+	return out.String()
+}

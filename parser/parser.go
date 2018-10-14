@@ -395,7 +395,28 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 		return nil
 	}
 
-	return exp
+	if !p.peekTokenIs(token.ASSIGN) {
+		return exp
+	}
+
+	// array as left value
+	p.nextToken() // skip token.ASSIGN
+	p.nextToken() // skip token.RBRACKET
+
+	letToken := token.Token{Type: token.LET, Literal: ""}
+	stmt := &ast.LetArrayExpresion{Token: letToken}
+
+	ident, ok := left.(*ast.Identifier)
+	if !ok {
+		// TODO: error handling
+		return nil
+	}
+
+	stmt.Name = ident
+	stmt.Index = exp.Index
+	stmt.Value = p.parseExpression(LOWEST)
+
+	return stmt
 }
 
 func (p *Parser) curTokenIs(t token.TokenType) bool {

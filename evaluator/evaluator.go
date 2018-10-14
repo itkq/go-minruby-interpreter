@@ -59,6 +59,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 		env.Set(node.Name.Value, val)
 
+	case *ast.LetArrayExpresion:
+		return evalLetArrayExpression(node, env)
+
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 
@@ -342,6 +345,35 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	default:
 		return newError("index operator not supported: %s", left.Type())
 	}
+}
+
+func evalLetArrayExpression(
+	node *ast.LetArrayExpresion,
+	env *object.Environment,
+) object.Object {
+	val := Eval(node.Value, env)
+	if isError(val) {
+		return val
+	}
+	indexObj := Eval(node.Index, env)
+	if isError(indexObj) {
+		return indexObj
+	}
+	obj, ok := env.Get(node.Name.Value)
+	if !ok {
+		return newError("identifier not found: " + node.Name.TokenLiteral())
+	}
+	arr := obj.(*object.Array)
+	index := indexObj.(*object.Integer)
+	len := int64(len(arr.Elements))
+
+	var i int64
+	for i = 0; i < index.Value-len+1; i++ {
+		arr.Elements = append(arr.Elements, &object.Null{})
+	}
+	arr.Elements[index.Value] = Eval(node.Value, env)
+
+	return val
 }
 
 func evalArrayIndexExpression(array, index object.Object) object.Object {

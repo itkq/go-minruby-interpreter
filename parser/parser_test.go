@@ -838,3 +838,34 @@ func TestParsingIndexExpressions(t *testing.T) {
 		return
 	}
 }
+
+func TestLetArrayStatement(t *testing.T) {
+	input := "a[1 + 1] = 2 + 2"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.ParseProgram()
+	checkParserErrors(t, p)
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp not *ast.ExpressionStatement. got=%T", stmt.Expression)
+	}
+
+	letArrExp, ok := stmt.Expression.(*ast.LetArrayExpresion)
+	if !ok {
+		t.Fatalf("exp not *ast.LetArrayExpression. got=%T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, letArrExp.Name, "a") {
+		return
+	}
+
+	if !testInfixExpression(t, letArrExp.Index, 1, "+", 1) {
+		return
+	}
+
+	if !testInfixExpression(t, letArrExp.Value, 2, "+", 2) {
+		return
+	}
+}
